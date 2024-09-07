@@ -1,0 +1,45 @@
+<div>
+  <h1>Contenido del Carrito</h1>
+  <div id="carritoLleno">
+    <div class="listado"><div id="listado">
+        {{#each cart.products}}
+          <div class="productoBox">
+            <h3 class="flex1c">{{this.title}}</h3>
+            <p class="flex2c">Precio: ${{this.price}}</p>
+            <p class="flex2c">Cantidad: {{this.quantity}}</p>
+            <p class="flex2c">Stock: {{this.stock}}</p>
+
+            <input
+              type="number"
+              name="quantity"
+              min="1"
+              max="{{add this.stock this.quantity}}"
+              value="{{this.quantity}}"
+              class="flex3c"
+              data-product-id="{{this._id}}"
+            />
+            <button
+              class="flex4c btn-update"
+              data-product-idu="{{this._id}}"
+            >Actualizar</button>
+            <button
+              class="flex4c btn-remove"
+              data-product-idr="{{this._id}}"
+            >Eliminar</button>
+          </div>
+        {{/each}}
+      </div></div>
+
+    <h3 class="center" id="total">Total: ${{totalPrice}}</h3>
+
+    <div class="center">
+      <button id="clearCart">Eliminar todos los productos</button>
+      <button id="checkout">Terminar compra</button>
+    </div>
+
+  </div>
+  <a href="/" class="center"><button>Volver a la tienda</button></a>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/cart.js"></script>
