@@ -1,7 +1,7 @@
 import express from "express";
 
 import cartsModel from "../models/carts.model.js";
-import productsModel from "../models/products.model.js"; 
+import productsModel from "../models/products.model.js";
 
 const router = express.Router();
 
@@ -134,6 +134,21 @@ router.get("/carts/:cid", async (req, res) => {
     console.log(error);
     res.status(500).json({ msg: "Error al obtener el carrito." });
   }
+});
+
+//////////////////////////////////////////////////
+import { isAuthenticated, isNotAuthenticated } from "../middleware/auth.js";
+
+router.get("/login", isNotAuthenticated, (req, res) => {
+  res.render("login");
+});
+
+router.get("/register", isNotAuthenticated, (req, res) => {
+  res.render("register");
+});
+
+router.get("/profile", isAuthenticated, (req, res) => {
+  res.render("profile", { user: req.session.user });
 });
 
 export default router;
