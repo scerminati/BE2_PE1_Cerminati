@@ -1,6 +1,8 @@
 import express from "express";
 
 import session from "express-session";
+import passport from "passport";
+import initializePassport from "./config/passport.config.js";
 import cookieParser from "cookie-parser";
 import MongoStore from "connect-mongo";
 
@@ -77,6 +79,10 @@ app.get("/session", (req, res) => {
     res.send("Bienvenido");
   }
 });
+
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session);
 
 //Autentificador para chequear el administrador.
 function auth(req, res, next) {
