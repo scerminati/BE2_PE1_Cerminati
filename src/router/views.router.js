@@ -111,8 +111,9 @@ const populateCarrito = async (carrito) => {
   });
 };
 
-// Ruta para mostrar el contenido del carrito
-router.get("/carts/:cid",isAuthenticated, async (req, res) => {
+// Ruta para mostrar el contenido del carrito //PASSPORT CALL?
+
+router.get("/carts/:cid", passportCall("jwt"), async (req, res) => {
   try {
     const cartId = req.params.cid;
     let carritoEncontrado = await cartsModel.findOne({ _id: cartId });
@@ -147,7 +148,6 @@ router.get("/carts/:cid",isAuthenticated, async (req, res) => {
     res.status(500).json({ msg: "Error al obtener el carrito." });
   }
 });
-
 
 router.get("/login", isNotAuthenticated, (req, res) => {
   res.render("users/login");

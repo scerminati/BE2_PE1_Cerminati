@@ -23,10 +23,31 @@ socket.on("Product Update", (updatedProduct) => {
     // Actualizar el máximo del input
     const quantityInput = document.getElementById("quantity");
     if (quantityInput) {
-      quantityInput.max = updatedProduct.stock; 
+      quantityInput.max = updatedProduct.stock;
     }
   }
 });
+
+//Chequeo de ID de carrito
+const getCartId = async () => {
+  try {
+    const response = await fetch("../api/sessions/current", {
+      method: "GET",
+      credentials: "include", // Asegúrate de incluir las cookies en la solicitud
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener los datos del usuario");
+    }
+
+    const data = await response.json();
+    console.log("Datos del usuario:", data);
+
+    return data.cart._id;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
 
 // Función para verificar si el producto está en el carrito
 const isProductInCart = async (cartId, productId) => {
@@ -71,24 +92,32 @@ const addToCart = async (cartId, productId, quantity) => {
 
 // Función para manejar la carga de la página de detalles
 document.addEventListener("DOMContentLoaded", async function () {
-  let cartId = localStorage.getItem("cartId");
-  const cartLink = document.getElementById("cartLink");
-  cartLink.href = `/carts/${cartId}`;
-  console.log(`Carrito ya existente con ID: ${cartId}`);
+  const cartId = await getCartId();
+  if (cartId) {
+    const cartLink = document.getElementById("cartLink");
+    cartLink.href = `/carts/${cartId}`;
+    console.log(`Carrito ya existente con ID: ${cartId}`);
+  } else {
+    cartLink.href = `/login`;
+  }
 
   //Función para manipulación de cart count.
   const getQT = async () => {
-    let cartId = localStorage.getItem("cartId");
-    try {
-      const response = await fetch(`/api/carts/${cartId}/QT`);
-      if (response.ok) {
-        const data = await response.json();
-        cartCount.innerText = data.totalProductos;
-      } else {
-        console.error(`Error ak cargar QT: ${response.statusText}`);
+    const cartId = await getCartId();
+    if (cartId) {
+      try {
+        const response = await fetch(`/api/carts/${cartId}/QT`);
+        if (response.ok) {
+          const data = await response.json();
+          cartCount.innerText = data.totalProductos;
+        } else {
+          console.error(`Error ak cargar QT: ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error("Error:", error);
       }
-    } catch (error) {
-      console.error("Error:", error);
+    } else {
+      cartCount.innerText = 0;
     }
   };
 
@@ -127,5 +156,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         agregadoAlCarrito.innerText = "Producto Agregado al carrito";
       });
     }
+  } else if (!cartId) {
+    window.location.href = "/login";
   }
 });

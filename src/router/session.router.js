@@ -90,7 +90,7 @@ router.post("/logout", (req, res) => {
 router.get("/current", passportCall("jwt"), async (req, res) => {
   try {
     // Recupera el ID del usuario desde el token (req.user se llena en authToken)
-    const user = await userModel.findById(req.user.id).populate("cart");
+    const user = await userModel.findById(req.user._id).populate("cart");
 
     if (!user) {
       return res.status(404).send({ error: "Usuario no encontrado" });
@@ -108,6 +108,32 @@ router.get("/current", passportCall("jwt"), async (req, res) => {
   } catch (error) {
     console.error("Error al obtener los datos del usuario logueado:", error);
     res.status(500).send({ error: "Error al obtener los datos del usuario" });
+  }
+});
+
+
+router.post("/checkout", passportCall("jwt"), async (req, res) => {
+  //Acá tendría que añadir una collection con mis checkouts, donde tenga usuario, address, etc.... datos de usuario + compra.
+  try {
+    const user = await userModel.findById(req.user._id).populate("cart");
+    if (!user || !user.cart) {
+      return res.status(404).send({ error: "Carrito no encontrado" });
+    }
+
+    // Crea un nuevo carrito
+    const newCartId = await getNextIdC(cartsModel); // Genera un nuevo ID
+    const newCart = new cartsModel({ id: newCartId, products: [] });
+    await newCart.save();
+
+    // Actualiza el usuario con el nuevo carrito
+    user.cart = newCart._id;
+    await user.save();
+
+    // Responder al cliente con un mensaje de éxito
+    res.status(200).send({ msg: "Compra realizada exitosamente" });
+  } catch (error) {
+    console.error("Error al completar la compra:", error);
+    res.status(500).send({ error: "Error al completar la compra" });
   }
 });
 
