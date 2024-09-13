@@ -35,7 +35,7 @@ app.use(
       mongoUrl:
         "mongodb+srv://sofiacermi:BEFinal@beproject.jrrw5gf.mongodb.net/SoGames?retryWrites=true&w=majority&appName=BEProject",
       mongoOptions: {},
-      ttl: 15,
+      ttl: 3600,
     }),
     secret: "SCerminati2024",
     resave: false,
@@ -82,7 +82,7 @@ app.get("/session", (req, res) => {
 
 initializePassport();
 app.use(passport.initialize());
-app.use(passport.session);
+app.use(passport.session());
 
 //Autentificador para chequear el administrador.
 function auth(req, res, next) {
@@ -124,9 +124,9 @@ const hbs = handlebars.create({
 });
 
 //Handlebars
-app.engine("handlebars", hbs.engine);
+app.engine("hbs", hbs.engine);
 app.set("views", path.join(__dirname, "../views"));
-app.set("view engine", "handlebars");
+app.set("view engine", "hbs");
 
 //Estáticos
 app.use(express.static(path.join(__dirname, "../public")));

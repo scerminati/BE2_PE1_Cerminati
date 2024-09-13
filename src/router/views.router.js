@@ -1,5 +1,5 @@
 import express from "express";
-
+import { isAuthenticated, isNotAuthenticated } from "../middleware/auth.js";
 import cartsModel from "../models/carts.model.js";
 import productsModel from "../models/products.model.js";
 
@@ -68,15 +68,17 @@ router.get("/products/:pid", async (req, res) => {
     const product = await productsModel.findOne({ _id: idProduct });
 
     if (product) {
-      res.render("productDetail", {
+      res.render("products/productDetail", {
         product,
       });
     } else {
-      res.status(404).json({ msg: "Producto no encontrado." });
+      res.status(404).render("error/error", { msg: "Producto no encontrado." });
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "Error al obtener el producto." });
+    res
+      .status(500)
+      .render("error/error", { msg: "Error al obtener el producto." });
   }
 });
 
@@ -84,7 +86,7 @@ router.get("/products/:pid", async (req, res) => {
 router.get("/realtimeproducts", async (req, res) => {
   try {
     const products = await productsModel.find({}); // Cargar todos los productos desde la base de datos
-    res.render("realtimeproducts", {
+    res.render("products/realtimeproducts", {
       products,
     });
   } catch (error) {
@@ -108,7 +110,9 @@ router.get("/carts/:cid", async (req, res) => {
     let carritoEncontrado = await cartsModel.findOne({ _id: cartId });
 
     if (!carritoEncontrado) {
-      return res.status(404).render("error", { msg: "Carrito no encontrado." });
+      return res
+        .status(404)
+        .render("error/error", { msg: "Carrito no encontrado." });
     }
 
     carritoEncontrado = await populateCarrito(carritoEncontrado);
@@ -126,7 +130,7 @@ router.get("/carts/:cid", async (req, res) => {
 
     totalPrice = totalPrice.toFixed(2);
 
-    res.render("cart", {
+    res.render("users/cart", {
       cart: carritoEncontrado,
       totalPrice,
     });
@@ -136,19 +140,30 @@ router.get("/carts/:cid", async (req, res) => {
   }
 });
 
-//////////////////////////////////////////////////
-import { isAuthenticated, isNotAuthenticated } from "../middleware/auth.js";
+//Vistas específicas de manejo de usuarios
 
 router.get("/login", isNotAuthenticated, (req, res) => {
-  res.render("login");
+  res.render("users/login");
 });
 
 router.get("/register", isNotAuthenticated, (req, res) => {
-  res.render("register");
+  res.render("users/register");
 });
 
 router.get("/profile", isAuthenticated, (req, res) => {
-  res.render("profile", { user: req.session.user });
+  res.render("users/profile", { user: req.session.user });
+});
+
+router.get("/failedregister", (req, res) => {
+  res.render("error/error", {
+    msg: "El registro ha fallado, intenta nuevamente.",
+  });
+});
+
+router.get("/faillogin", (req, res) => {
+  res.render("error/error", {
+    msg: "Login fallido. Por favor, revisa tus credenciales.",
+  });
 });
 
 export default router;

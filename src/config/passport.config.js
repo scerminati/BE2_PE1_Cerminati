@@ -15,7 +15,7 @@ const initializePassport = () => {
         try {
           let user = await userModel.findOne({ email: username });
           if (user) {
-            console.log("El usuario existe");
+            console.log("El usuario ya existe");
             return done(null, false);
           }
 
@@ -29,44 +29,48 @@ const initializePassport = () => {
           };
 
           let result = await userModel.create(newUser);
-          return null, result;
+          console.log("Usuario creado exitosamente:", result);
+          return done(null, result);  // Aquí devolvemos el nuevo usuario
         } catch (error) {
+          console.error("Error al registrar usuario:", error);
           return done("Error al obtener el usuario", error);
         }
       }
     )
   );
-};
 
-passport.serializeUser((user, done) => {
-  done(null, user._id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  let user = await userModel.findById(id);
-  done(null, user);
-});
-
-passport.use(
-  "login",
-  new LocalStrategy(
-    { usernameField: "email" },
-    async (username, password, done) => {
-      try {
-        const user = await userModel.findOne({ email: username });
-        if (!user) {
-          console.log("el usuario no existe");
-          // if (!user) return res.status(403).send("Usuario o Contraseña incorrecta");
-          return done(null, false);
-        }
-        if (!passwordValidation(user, password)) {
+  passport.use(
+    "login",
+    new LocalStrategy(
+      { usernameField: "email" },
+      async (username, password, done) => {
+        try {
+          const user = await userModel.findOne({ email: username });
+          if (!user) {
+            console.log("El usuario no existe");
+            return done(null, false);
+          }
+          if (!passwordValidation(user, password)) {
+            console.log("Contraseña incorrecta");
+            return done(null, false);  // Devolvemos false si la contraseña no es correcta
+          }
           return done(null, user);
+        } catch (error) {
+          console.error("Error en la autenticación:", error);
+          return done(error);
         }
-      } catch (error) {
-        return done(error);
       }
-    }
-  )
-);
+    )
+  );
+
+  passport.serializeUser((user, done) => {
+    done(null, user._id);
+  });
+
+  passport.deserializeUser(async (id, done) => {
+    let user = await userModel.findById(id);
+    done(null, user);
+  });
+};
 
 export default initializePassport;
