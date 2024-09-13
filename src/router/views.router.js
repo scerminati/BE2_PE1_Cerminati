@@ -1,6 +1,7 @@
 import express from "express";
 
 import { authorization } from "../utils/passportUtils.js";
+import { authToken } from "../utils/webTokenUtil.js";
 import { isAuthenticated, isNotAuthenticated } from "../middleware/auth.js";
 
 import cartsModel from "../models/carts.model.js";
@@ -86,17 +87,22 @@ router.get("/products/:pid", async (req, res) => {
 });
 
 //Manejo de views de realtimeproducts
-router.get("/realtimeproducts", authorization("admin"), async (req, res) => {
-  try {
-    const products = await productsModel.find({}); // Cargar todos los productos desde la base de datos
-    res.render("products/realtimeproducts", {
-      products,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: "Error al cargar los productos." });
+router.get(
+  "/realtimeproducts",
+  //authToken,
+  authorization("admin"),
+  async (req, res) => {
+    try {
+      const products = await productsModel.find({}); // Cargar todos los productos desde la base de datos
+      res.render("products/realtimeproducts", {
+        products,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ msg: "Error al cargar los productos." });
+    }
   }
-});
+);
 
 // Función para llenar el carrito con productos
 const populateCarrito = async (carrito) => {
