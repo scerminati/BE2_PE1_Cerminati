@@ -39,7 +39,7 @@ app.use(
     store: MongoStore.create({
       mongoUrl: DATABASE_URL,
       mongoOptions: {},
-      ttl: 3600,
+      ttl: 360,
     }),
     secret: SECRET_PASSPORT,
     resave: false,

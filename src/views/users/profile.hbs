@@ -10,4 +10,10 @@
   <button type="submit">Cerrar Sesión</button>
 </form>
 
+{{#if (eq user.role "admin")}}
+  <a href="/realtimeproducts">
+    <button>Modificar Productos</button>
+  </a>
+{{/if}}
+
 <a href="/"><button>Volver al inicio</button></a>

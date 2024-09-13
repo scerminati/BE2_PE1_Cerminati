@@ -24,7 +24,6 @@ const createNewCart = async () => {
       const data = await response.json();
       localStorage.setItem("cartId", data.newCart._id);
       socket.emit("cartId", data.newCart._id);
-      tostada("!Bienvenido! Tu carrito te espera");
       console.log(`Nuevo carrito creado con ID: ${data.newCart._id}`);
       return data.newCart._id;
     } else {
@@ -106,7 +105,7 @@ const addToCart = async (productId) => {
       );
 
       if (response.ok) {
-        tostada("Producto agreado al carrito.");
+        tostada("Producto agregado al carrito.");
         socket.emit("Product Update", productId);
       } else {
         throw new Error("No se pudo agregar el producto al carrito");

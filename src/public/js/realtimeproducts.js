@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const resetBtn = document.getElementById("resetBtn");
   const tituloHTML = document.getElementById("tituloHTML");
   const addProdbtn = document.getElementById("addProdbtn");
+  const listProd = document.getElementById("listProd");
   const addProdForm = document.getElementById("addProdForm");
   const cancel = document.getElementById("cancel");
   const listado = document.getElementById("listado");
@@ -67,13 +68,14 @@ document.addEventListener("DOMContentLoaded", function () {
   addProdbtn.addEventListener("click", () => {
     addProdForm.style.display = "inline";
     addProdbtn.style.display = "none";
+    listProd.style.display = "none";
   });
 
   // Evento para enviar el formulario de producto
   productForm.addEventListener("submit", async (event) => {
     handleSubmit(event);
   });
-  
+
   //Función handleSubmit, me permite linkear con modificar un producto
   async function handleSubmit(event) {
     event.preventDefault();
@@ -140,6 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const productId = event.target.getAttribute("data-product-id");
       addProdForm.style.display = "inline";
       addProdbtn.style.display = "none";
+      listProd.style.display = "none";
 
       try {
         const response = await fetch(`/api/products/${productId}`);
@@ -208,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Emitir evento de actualización de producto a través de Socket.io
       socket.emit("Product Update", updatedProduct.productoModificado);
-      tostada("Porducto actualizado");
+      tostada("Producto actualizado");
 
       cancelOp();
     } catch (error) {
@@ -229,6 +232,7 @@ document.addEventListener("DOMContentLoaded", function () {
     tituloHTML.innerHTML = `Añadir un producto`;
     addProdForm.style.display = "none";
     addProdbtn.style.display = "inline";
+    listProd.style.display = "inline";
   }
 
   //Función para estandarizar la creación o modificación de un producto

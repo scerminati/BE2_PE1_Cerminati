@@ -2,3 +2,4 @@ node_modules
 src/json
 appOriginal.js
 .env
+src/config/passportLocal.js

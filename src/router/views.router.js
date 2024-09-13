@@ -1,7 +1,6 @@
 import express from "express";
 
-import { authorization } from "../utils/passportUtils.js";
-import { authToken } from "../utils/webTokenUtil.js";
+import { authorization, passportCall } from "../utils/passportUtils.js";
 import { isAuthenticated, isNotAuthenticated } from "../middleware/auth.js";
 
 import cartsModel from "../models/carts.model.js";
@@ -89,12 +88,12 @@ router.get("/products/:pid", async (req, res) => {
 //Manejo de views de realtimeproducts
 router.get(
   "/realtimeproducts",
-  //authToken,
+  passportCall("jwt"),
   authorization("admin"),
   async (req, res) => {
     try {
       const products = await productsModel.find({}); // Cargar todos los productos desde la base de datos
-      res.render("products/realtimeproducts", {
+      res.render("admin/realtimeproducts", {
         products,
       });
     } catch (error) {
@@ -113,7 +112,7 @@ const populateCarrito = async (carrito) => {
 };
 
 // Ruta para mostrar el contenido del carrito
-router.get("/carts/:cid", async (req, res) => {
+router.get("/carts/:cid",isAuthenticated, async (req, res) => {
   try {
     const cartId = req.params.cid;
     let carritoEncontrado = await cartsModel.findOne({ _id: cartId });
@@ -149,13 +148,11 @@ router.get("/carts/:cid", async (req, res) => {
   }
 });
 
-//Vistas específicas de manejo de usuarios
 
 router.get("/login", isNotAuthenticated, (req, res) => {
   res.render("users/login");
 });
 
-//SI ESTOY LOGUEADA NO QUIERO QUE SE PUEDA ACCEDER ACÁS
 router.get("/register", isNotAuthenticated, (req, res) => {
   res.render("users/register");
 });

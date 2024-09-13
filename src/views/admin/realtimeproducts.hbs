@@ -64,32 +64,32 @@
     <p>*Los campos son obligatorios para añadir o modificar un producto.</p>
     <button id="cancel">Cancelar Operación</button>
   </div><br />
-  <h2>Listado de Productos</h2>
-  <div class="listado"><div id="listado">
-      {{#each products}}
-        <div id="{{this.id}}" class="productoBox">
-          <p class="flex0">ID: {{this.id}}</p>
-          <p class="flex1">
-            Producto:
-            {{this.title}}</p>
-          <p class="flex2"> Precio: ${{this.price}} </p>
-          <p class="flex3">
-            Stock:
-            {{this.stock}}</p>
-          <button
-            type="button"
-            class="btn-modify flex4"
-            data-product-id="{{this.id}}"
-          >Modificar</button>
-          <button
-            type="button"
-            class="btn-delete flex5"
-            data-product-id="{{this.id}}"
-          >Eliminar</button>
+  <div id="listProd"><h2>Listado de Productos</h2>
+    <div class="listado"><div id="listado">
+        {{#each products}}
+          <div id="{{this.id}}" class="productoBox">
+            <p class="flex0">ID: {{this.id}}</p>
+            <p class="flex1">
+              Producto:
+              {{this.title}}</p>
+            <p class="flex2"> Precio: ${{this.price}} </p>
+            <p class="flex3">
+              Stock:
+              {{this.stock}}</p>
+            <button
+              type="button"
+              class="btn-modify flex4"
+              data-product-id="{{this.id}}"
+            >Modificar</button>
+            <button
+              type="button"
+              class="btn-delete flex5"
+              data-product-id="{{this.id}}"
+            >Eliminar</button>
 
-        </div>
-      {{/each}}
-    </div></div>
+          </div>
+        {{/each}}
+      </div></div></div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
