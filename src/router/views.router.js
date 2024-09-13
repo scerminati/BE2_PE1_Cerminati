@@ -1,5 +1,8 @@
 import express from "express";
+
+import { authorization } from "../utils/passportUtils.js";
 import { isAuthenticated, isNotAuthenticated } from "../middleware/auth.js";
+
 import cartsModel from "../models/carts.model.js";
 import productsModel from "../models/products.model.js";
 
@@ -83,7 +86,7 @@ router.get("/products/:pid", async (req, res) => {
 });
 
 //Manejo de views de realtimeproducts
-router.get("/realtimeproducts", async (req, res) => {
+router.get("/realtimeproducts", authorization("admin"), async (req, res) => {
   try {
     const products = await productsModel.find({}); // Cargar todos los productos desde la base de datos
     res.render("products/realtimeproducts", {
@@ -146,12 +149,13 @@ router.get("/login", isNotAuthenticated, (req, res) => {
   res.render("users/login");
 });
 
+//SI ESTOY LOGUEADA NO QUIERO QUE SE PUEDA ACCEDER ACÁS
 router.get("/register", isNotAuthenticated, (req, res) => {
   res.render("users/register");
 });
 
 router.get("/profile", isAuthenticated, (req, res) => {
-  res.render("users/profile", { user: req.session.user });
+  res.render("users/profile", { user: req.user });
 });
 
 router.get("/failedregister", (req, res) => {

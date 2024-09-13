@@ -23,6 +23,8 @@ import { helpers } from "./utils/utils.js";
 import dotenv from "dotenv";
 
 dotenv.config();
+const DATABASE_URL = process.env.DATABASE_URL;
+const SECRET_PASSPORT = process.env.SECRET_PASSPORT;
 
 const app = express();
 const PORT = 8080;
@@ -35,11 +37,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     store: MongoStore.create({
-      mongoUrl: process.env.DATABASE_URL,
+      mongoUrl: DATABASE_URL,
       mongoOptions: {},
       ttl: 3600,
     }),
-    secret: process.env.SECRET_PASSPORT,
+    secret: SECRET_PASSPORT,
     resave: false,
     saveUninitialized: false,
   })
@@ -48,10 +50,11 @@ app.use(
 initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cookieParser());
 
 //Conexión a la base de datos
 mongoose
-  .connect(process.env.DATABASE_URL)
+  .connect(DATABASE_URL)
   .then(() => {
     console.log("DataBase Connected");
   })

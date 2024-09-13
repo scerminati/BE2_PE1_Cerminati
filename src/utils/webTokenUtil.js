@@ -1,9 +1,11 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
-const PRIVATE_KEY = "Secret";
+dotenv.config();
+const SECRET_PASSPORT = process.env.SECRET_PASSPORT;
 
 const generateToken = (user) => {
-  const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: "24h" });
+  const token = jwt.sign({ id: user._id }, SECRET_PASSPORT, { expiresIn: "24h" });
   return token;
 };
 
@@ -12,7 +14,7 @@ const authToken = (req, res, next) => {
   if (!authHeader) return res.status(401).send({ error: "No autenticado" });
   const token = authHeader.split(" ")[1];
 
-  jwt.verify(token, PRIVATE_KEY, (error, credentials) => {
+  jwt.verify(token, SECRET_PASSPORT, (error, credentials) => {
     if (error) return res.status(403).send({ error: "no estás autorizado" });
     req.user = credentials.user;
     next();
