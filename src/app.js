@@ -1,10 +1,13 @@
 import express from "express";
 
-import passport from "passport";
-import initializePassport from "./config/passport.config.js";
-
 import path from "path";
 import __dirname from "./utils/utils.js";
+
+import session from "express-session";
+import passport from "passport";
+import initializePassport from "./config/passport.config.js";
+import cookieParser from "cookie-parser";
+import MongoStore from "connect-mongo";
 
 import mongoose from "mongoose";
 import handlebars from "express-handlebars";
@@ -27,6 +30,20 @@ const PORT = 8080;
 //Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ** Configura el middleware express-session **
+app.use(
+  session({
+    store: MongoStore.create({
+      mongoUrl: process.env.DATABASE_URL,
+      mongoOptions: {},
+      ttl: 3600,
+    }),
+    secret: process.env.SECRET_PASSPORT,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 initializePassport();
 app.use(passport.initialize());
