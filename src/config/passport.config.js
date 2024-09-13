@@ -3,6 +3,7 @@ import local from "passport-local";
 import userModel from "../models/user.model.js";
 import { createHash, passwordValidation } from "../utils/passwordUtils.js";
 
+
 const LocalStrategy = local.Strategy;
 
 const initializePassport = () => {

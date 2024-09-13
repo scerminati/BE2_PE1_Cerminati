@@ -11,7 +11,6 @@ router.post(
   }
 );
 
-
 router.post(
   "/login",
   passport.authenticate("login", { failureRedirect: "/faillogin" }),
@@ -26,6 +25,8 @@ router.post(
         age: req.user.age,
         email: req.user.email,
         admin: req.user.admin,
+
+        
       };
 
       res.status(200).send(`Bienvenido ${req.user.first_name}`);
@@ -36,7 +37,6 @@ router.post(
   }
 );
 
-
 router.post("/logout", (req, res) => {
   if (!req.session.user)
     return res.status(400).send("No hay ninguna sesión activa");
@@ -44,7 +44,7 @@ router.post("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) return res.status(500).send("Error al cerrar sesión");
     res.clearCookie("connect.sid");
-    res.redirect("/login");
+    res.redirect("/");
   });
 });
 

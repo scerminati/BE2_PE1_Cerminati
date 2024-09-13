@@ -1,11 +1,13 @@
 <h1>Perfil del usuario</h1>
-<div class="cartIcon"><a href="#" id="cartLink"></a>
+{{! <div class="cartIcon"><a href="#" id="cartLink"></a>
       <i class="bx bx-cart"></i>
       <p id="cartCount">0</p>
-    </a></div>
+    </a></div> }}
 <p>Nombre: {{user.first_name}} {{user.last_name}}</p>
 <p>Email: {{user.email}}</p>
 <p>Edad: {{user.age}}</p>
 <form action="/api/sessions/logout" method="POST">
   <button type="submit">Cerrar Sesión</button>
 </form>
+
+<a href="/"><button>Volver al inicio</button></a>

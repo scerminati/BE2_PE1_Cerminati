@@ -1,10 +1,7 @@
 import express from "express";
 
-import session from "express-session";
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
-import cookieParser from "cookie-parser";
-import MongoStore from "connect-mongo";
 
 import path from "path";
 import __dirname from "./utils/utils.js";
@@ -20,88 +17,24 @@ import viewsRouter from "./router/views.router.js";
 import { Server } from "socket.io";
 import { helpers } from "./utils/utils.js";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const app = express();
 const PORT = 8080;
 
 //Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-app.use(cookieParser("SCerminati2024"));
-
-app.use(
-  session({
-    store: MongoStore.create({
-      mongoUrl:
-        "mongodb+srv://sofiacermi:BEFinal@beproject.jrrw5gf.mongodb.net/SoGames?retryWrites=true&w=majority&appName=BEProject",
-      mongoOptions: {},
-      ttl: 3600,
-    }),
-    secret: "SCerminati2024",
-    resave: false,
-    saveUninitialized: false,
-  })
-);
-
-//COOKIES
-app.get("/setCookie", (req, res) => {
-  res
-    .cookie("Nombre", "soy una cookie", { maxAge: 10000, signed: "true" })
-    .send("Nombre");
-});
-
-app.get("/getCookie", (req, res) => {
-  res.send(req.signedCookies);
-});
-
-app.get("/deleteCookie", (req, res) => {
-  res.clearCookie("Nombre").send("Cookie borrada");
-});
-
-app.get("/deleteAllCookies", (req, res) => {
-  // Iterar sobre cada cookie
-  for (let cookie in req.cookies) {
-    // Eliminar la cookie
-    res.clearCookie(cookie);
-  }
-
-  // Enviar la respuesta al cliente
-  res.send("Todas las cookies han sido borradas");
-});
-
-///SESSION
-app.get("/session", (req, res) => {
-  if (req.session.counter) {
-    req.session.counter++;
-    res.send(`esta es tu visita ${req.session.counter}`);
-  } else {
-    req.session.counter = 1;
-    res.send("Bienvenido");
-  }
-});
 
 initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
-//Autentificador para chequear el administrador.
-function auth(req, res, next) {
-  if (req.session?.user.admin) {
-    return next();
-  }
-  res.status(403).send("No estás autorizado");
-}
-
-app.get("/privado", auth, (req, res) => {
-  res.send("bienvenido administrador");
-});
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 //Conexión a la base de datos
 mongoose
-  .connect(
-    "mongodb+srv://sofiacermi:BEFinal@beproject.jrrw5gf.mongodb.net/SoGames?retryWrites=true&w=majority&appName=BEProject"
-  )
+  .connect(process.env.DATABASE_URL)
   .then(() => {
     console.log("DataBase Connected");
   })
