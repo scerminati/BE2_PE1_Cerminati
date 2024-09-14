@@ -28,26 +28,6 @@ socket.on("Product Update", (updatedProduct) => {
   }
 });
 
-//Chequeo de ID de carrito
-const getCartId = async () => {
-  try {
-    const response = await fetch("../api/sessions/current", {
-      method: "GET",
-      credentials: "include", // Asegúrate de incluir las cookies en la solicitud
-    });
-
-    if (!response.ok) {
-      throw new Error("Error al obtener los datos del usuario");
-    }
-
-    const data = await response.json();
-    console.log("Datos del usuario:", data);
-
-    return data.cart._id;
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
 
 // Función para verificar si el producto está en el carrito
 const isProductInCart = async (cartId, productId) => {
@@ -62,7 +42,7 @@ const isProductInCart = async (cartId, productId) => {
       throw new Error("No se pudo obtener el carrito.");
     }
   } catch (error) {
-    console.error("Error al verificar el producto en el carrito:", error);
+    console.error("Error al verificar el producto en el carrito:", error.message);
     return false;
   }
 };
@@ -86,7 +66,7 @@ const addToCart = async (cartId, productId, quantity) => {
       throw new Error("No se pudo agregar el producto al carrito");
     }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error:", error,message);
   }
 };
 
@@ -96,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (cartId) {
     const cartLink = document.getElementById("cartLink");
     cartLink.href = `/carts/${cartId}`;
-    console.log(`Carrito ya existente con ID: ${cartId}`);
+    
   } else {
     cartLink.href = `/login`;
   }
@@ -114,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           console.error(`Error ak cargar QT: ${response.statusText}`);
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error:", error.message);
       }
     } else {
       cartCount.innerText = 0;
@@ -128,7 +108,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Escuchar actualizaciones de productos desde el servidor
   socket.on("Cart Update", (updatedCart) => {
-    console.log("Carrito actualizado:", updatedCart);
+    //console.log("Carrito actualizado:", updatedCart);
     const cartCount = document.getElementById("cartCount");
     if (cartCount) {
       getQT();

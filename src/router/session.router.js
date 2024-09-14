@@ -5,21 +5,17 @@ import { getNextIdC } from "../utils/utils.js";
 import { createHash, passwordValidation } from "../utils/passwordUtils.js";
 import { generateToken } from "../utils/webTokenUtil.js";
 import { passportCall } from "../utils/passportUtils.js";
-import dotenv from "dotenv";
-
-dotenv.config();
-const SECRET_PASSPORT = process.env.SECRET_PASSPORT;
 
 const router = express.Router();
 
-//Registro
+//Registro a través de passport con generación de carrito nuevo y pasaje de datos desde front al back y al database.
 router.post("/register", async (req, res) => {
   const { first_name, last_name, password, email, age } = req.body;
   try {
     let user = await userModel.findOne({ email });
     if (user) {
       console.log("El usuario ya existe");
-      //PONER ERROR
+      return res.status(400).send({ msg: "El correo electrónico ya está en uso" });
     }
 
     const newUser = {
@@ -54,7 +50,7 @@ router.post("/register", async (req, res) => {
     res.redirect("/login");
   } catch (error) {
     console.error("Error al registrar usuario:", error);
-    //ERROR
+    
   }
 });
 
@@ -89,7 +85,7 @@ router.post("/logout", (req, res) => {
 //Current user
 router.get("/current", passportCall("jwt"), async (req, res) => {
   try {
-    // Recupera el ID del usuario desde el token (req.user se llena en authToken)
+    
     const user = await userModel.findById(req.user._id).populate("cart");
 
     if (!user) {
@@ -103,7 +99,7 @@ router.get("/current", passportCall("jwt"), async (req, res) => {
       email: user.email,
       age: user.age,
       role: user.role,
-      cart: user.cart, // Incluye el carrito si está poblado
+      cart: user.cart, 
     });
   } catch (error) {
     console.error("Error al obtener los datos del usuario logueado:", error);

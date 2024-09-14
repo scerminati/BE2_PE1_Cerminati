@@ -111,9 +111,9 @@ const populateCarrito = async (carrito) => {
   });
 };
 
-// Ruta para mostrar el contenido del carrito //PASSPORT CALL?
+// Ruta para mostrar el contenido del carrito 
 
-router.get("/carts/:cid", passportCall("jwt"), async (req, res) => {
+router.get("/carts/:cid", passportCall("jwt"),isAuthenticated, async (req, res) => {
   try {
     const cartId = req.params.cid;
     let carritoEncontrado = await cartsModel.findOne({ _id: cartId });

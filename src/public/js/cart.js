@@ -10,27 +10,6 @@ socket.on("disconnect", () => {
   console.log("Cliente desconectado del servidor");
 });
 
-//Chequeo de ID de carrito
-const getCartId = async () => {
-  try {
-    const response = await fetch("../api/sessions/current", {
-      method: "GET",
-      credentials: "include", // Asegúrate de incluir las cookies en la solicitud
-    });
-
-    if (!response.ok) {
-      throw new Error("Error al obtener los datos del usuario");
-    }
-
-    const data = await response.json();
-    console.log("Datos del usuario:", data);
-
-    return data.cart._id;
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
-
 // Esperar a que el DOM esté completamente cargado
 document.addEventListener("DOMContentLoaded", async function () {
   const cartId = await getCartId();
@@ -54,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
           // Escuchar evento de actualización del carrito
           socket.on("Cart Update", (updatedCart) => {
-            console.log("Carrito Actualizado:", updatedCart);
+            //console.log("Carrito Actualizado:", updatedCart);
             updateCartView(updatedCart);
           });
 
@@ -88,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             try {
               const response = await fetch("../api/sessions/checkout", {
                 method: "POST",
-                credentials: "include", // Incluye las cookies en la solicitud
+                credentials: "include", 
               });
 
               if (!response.ok) {
@@ -101,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async function () {
               setTimeout(() => {
                 carritoVacio();
               }, 1000);
-              // Redirige o realiza otra acción
+             
               setTimeout(() => {
                 window.location.href = "/";
               }, 2000);
@@ -243,6 +222,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.error("Error al obtener el carrito:", error.message);
     }
   } else {
-    ///window.location.href = "/login";
+    window.location.href = "/login";
   }
 });

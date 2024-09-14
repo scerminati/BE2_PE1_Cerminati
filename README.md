@@ -1,6 +1,6 @@
 # Backend II - Pre Entrega 1 - Sofía Cerminati
 
-Este proyecto es la programación del Backend del E-Commerce So-Games, para juegos de mesa, junto con la implementación de su FrontEnd. El mismo se realiza como finalización del curso Programación Backend I: Desarrollo Avanzado de Backend de CODERHOUSE, comisión 70065, con el profesor Omar Jesús Maniás. **Modificar**
+Este proyecto es la programación del Backend del E-Commerce So-Games, para juegos de mesa, junto con la implementación de su FrontEnd. El mismo se realiza como finalización del curso Programación Backend II: Diseño y Arquitectura Backend de CODERHOUSE, comisión 70070, con el profesor Omar Jesús Maniás. 
 
 ## Tabla de Contenidos
 
@@ -11,22 +11,23 @@ Este proyecto es la programación del Backend del E-Commerce So-Games, para jueg
 5. [Mongoose y Modelos](#mongoose-y-modelos)
 6. [Multer y subida de archivos](#multer-y-subida-de-archivos)
 7. [Utils](#utils)
-8. [Visualización y Gestión de E-Commerce en FrontEnd](#visualización-y-gestión-de-e-commerce-en-frontend)
-9. [Esqueleto del Proyecto](#esqueleto-del-proyecto)
-10. [Recursos Utilizados](#recursos-utilizados)
+8. [Sesión, Autenticación y Autorización](#sesión-autenticación-y-autorización)
+9. [Visualización y Gestión de E-Commerce en FrontEnd](#visualización-y-gestión-de-e-commerce-en-frontend)
+10. [Esqueleto del Proyecto](#esqueleto-del-proyecto)
+11. [Recursos Utilizados](#recursos-utilizados)
 
 ## Instalación
 
 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/scerminati/BE_PF1_Cerminati.git
+git clone https://github.com/scerminati/BE2_PE1_Cerminati.git
 ```
 
 2. Navegar al directorio del repositorio
 
 ```bash
-cd BE_PF1_Cerminati
+cd BE2_PF1_Cerminati
 ```
 
 3. Instalar las dependencias
@@ -49,10 +50,11 @@ El servidor está configurado para ejecutarse en _localhost_ en el puerto _8080_
 
 ## Routers
 
-La aplicación cuenta con tres routers: _products_, _carts_ y _views_.
+La aplicación cuenta con cuatro routers: _products_, _carts_, _sessions_ y _views_.
 
 - **Products**: Contiene los métodos **GET**, **POST**, **PUT** y **DELETE** para la gestión de productos.
 - **Carts**: Incluye los métodos **GET**, **POST**, **PUT** y **DELETE** para la gestión de carritos.
+- **Sessions**: Permite el registro, inicio de sesión y autentificación del usuario dentro del sitio. Incluye los métodos **GET** y **POST**.
 - **Views**: Permite renderizar la información en pantalla usando Handlebars mediante el método **GET**.
 
 ## Endpoints
@@ -77,6 +79,22 @@ La aplicación cuenta con tres routers: _products_, _carts_ y _views_.
 
 - **DELETE**: El endpoint permite el distintas combinaciones de parámetros para resolver la consulta. Si se pasa **/api/carts/_idCarrito_/product/_idProducto_**, se elimina dicho producto del carrito, devolviendo así el stock original a la base de datos de producto. Por otro lado, si se pasa **/api/carts/_idCarrito_**, se eliminarán todos los productos dentro del carrito seleccionado, no así el carrito, permitiendo la persistencia y continuar con la compra si así se desea.
 
+### Sessions
+
+- **GET**: El endpoint de `GET` de Sessions permite obtener los datos del usuario autenticado. 
+
+  - **/current**: Envía los datos del usuario logeado una vez que se autentica la sesión del mismo al frontend.
+
+- **POST**: Los siguientes endpoints habilitan el registro, logueo y autentificación del usuario a través de inserciones en la base de datos y verificaciones en la misma.
+
+  - **/register**: Permite el registro del usuario verificando que el correo electrónico no se encuentre ya en la base de datos. Una vez que se crea el registro, el usuario tendrá un rol de `user` y un carrito se generará con id único.
+
+  - **/login**: Permite el inicio de sesión siempre que se haya registrado el usuario previamente, si el inicio de sesión es exitoso, se genera un token que se almacena en las cookies.
+
+  - **/logout**: Permite la finalización de la sesión, eliminando la cookie del navegador.
+
+  - **/checkout**: Actualiza el estado del usuario, creando un nuevo carrito en su usuario y guardando el anterior. 
+
 ### Views
 
 - **GET**: Los endpoints de `GET` permiten la visualización y renderización de las vistas utilizando Handlebars. A continuación se describen las vistas principales:
@@ -90,9 +108,17 @@ La aplicación cuenta con tres routers: _products_, _carts_ y _views_.
 
   - **/products/:pid**: Muestra los detalles de un producto específico. Renderiza la vista _productDetail.handlebars_. El parámetro `:pid` corresponde al ID del producto.
 
-  - **/realtimeproducts**: Renderiza la vista _realtimeproducts.handlebars_ que muestra todos los productos en tiempo real.
+  - **/realtimeproducts**: Renderiza la vista _realtimeproducts.handlebars_ que muestra todos los productos en tiempo real. La redirección debe estar autorizada, es decir, se verifica que el usuario logueado sea efectivamente un administrador.
 
-  - **/carts/:cid**: Muestra el contenido de un carrito específico. Renderiza la vista _cart.handlebars_ con el detalle de los productos en el carrito, la cantidad de cada uno y el precio total del carrito. El parámetro `:cid` corresponde al ID del carrito.
+  - **/carts/:cid**: Muestra el contenido de un carrito específico. Renderiza la vista _cart.handlebars_ con el detalle de los productos en el carrito, la cantidad de cada uno y el precio total del carrito. El parámetro `:cid` corresponde al ID del carrito. Autentica al usuario logeado antes de poder acceder a esta ruta.
+
+  - **/login**: Redirecciona al usuario a la página de login, siempre y cuando este no esté logueado.
+
+  - **/register**: Redirecciona al usuario a la página de registro, siempre y cuando no esté loguado.
+
+  - **/profile**: Redirecciona al usuario a su perfil, si está logueado y autenticado mediante passport.
+
+  - **/failedregister** y **/faillogin**: Redirecciona al usuario a una página de error, donde se espefica el mismo.
 
 ## Mongoose y Modelos
 
@@ -100,6 +126,7 @@ La aplicación cuenta con tres routers: _products_, _carts_ y _views_.
 
 - **Product**: Define la estructura de los productos con los campos de título, código, descripción, stock, categoría y thumbnail.
 - **Cart**: Define la estructura de los carritos, que incluye el array de productos y su cantidad. El array de productos, a su vez, es poblada por el modelo de _products_.
+- **User**: Define la estructura de los usuarios para el registro de los mismos, asignando como rol por defecto de `user` y asignando un carrito.
 
 ### Conexión con MongoDB
 
@@ -112,6 +139,10 @@ Se utiliza Mongoose Paginate para realizar el paginado en el index a partir del 
 ## Multer y subida de archivos
 
 Multer se utiliza para manejar la subida de archivos en `realtimeproducts`. La configuración incluye la definición de almacenamiento y la validación del tipo de archivo permitido, en este caso, imagen. Adicionalmente permite visualizar el contenido antes de subir, y una vez almacenado, lo deja en la carpeta `/public/images`.
+
+## Sesión, Autenticación y Autorización
+
+Se utiliza `express-session` para mantener la sesión en MongoStore. Adicionalmente se utiliza `passport` y `JsonWebToken` como estatregia de autenticación y autorización a lo largo de la navegación del sitio, teniendo como objetivo principal no autorizar ciertos accesos y proteger la sesión del usuario así como también sus datos sensibles. Se utiliza `cookie-parser` para poder extraer los tokens generados en los inicios de sesión, y permite la navegación durante una hora sin cerrar la sesión de manera automática.
 
 ## Utils
 
@@ -139,63 +170,97 @@ El archivo `utils.js` contiene una serie de scripts y helpers diseñados para fa
 
 - **index**: Permite acceder al listado completo de productos. Adicionalmente, al ingresar por primera vez, se genera un _idCart_ el cual se almacena en el local storage. Dicho valor permitirá la persistencia durante la visita del usuario.
 - **cart**: Permite la visualización del carrito actual, dejando que el usuario pueda modificar cantidades y/o eliminar productos. Adicionalmente permite realizar un checkout, el mismo eliminará el _idCart_ del local storage, y abrirá uno nuevo cuando se ingrese nuevamente a la página. Este carrito queda almacenado en la base de datos, y no se podrá modificar las cantidades ni los productos desde la sesión nueva.
+- **login**: Permite el inicio de sesión del usuario.
 - **productDetail**: Visualización de los detalles del producto seleccionado. Permite también añadir al carrito. Si el producto ya se encuentra en el carrito, no permitirá modificar la cantidad. La misma se debe hacer desde la visualización del carrito.
+- **profile**: Visualización de los datos básicos del usuario. 
 - **realtimeproducts**: La aplicación cuenta con una funcionalidad en tiempo real que permite la visualización y gestión dinámica de productos desde una vista de administrador. Esta funcionalidad se implementa utilizando **Socket.io** para permitir la comunicación en tiempo real entre el servidor y el cliente, permitiendo eliminar, modificar y añadir productos en la base de datos.
+- **register**: Habilita el registro de un usuario nuevo. 
 
 ## Esqueleto del Proyecto
 
 ```bash
-BE-PF1-Cerminati/
-│
+BE2-PE1-Cerminati
 ├── src/
-│ ├── models/
-│ │ ├── cartModel.js # Modelo de datos para carritos
-│ │ └── productModel.js # Modelo de datos para productos
-│ │
-│ ├── public/
-│ │ ├── images/ # Imágenes utilizadas en la aplicación
-│ │ ├── js/ # Scripts utilizados en el FrontEnd
-│ │ │ ├── cart.js # Script para manejo del carrito
-│ │ │ ├── index.js # Script para listado de productos
-│ │ │ ├── productDetail.js # Script para detalles de producto
-│ │ │ ├── realtimeproducts.js # Script para gestión de productos en modo Administrador
-│ │ │ └── toast.js # Script para notificaciones de estilo "toast"
-│ │ └── styles/ # Hojas de estilo CSS
-│ │   └── styles.css # Estilo principal de la aplicación
-│ │
-│ ├── router/
-│ │ ├── cartRoutes.js # Rutas para carritos
-│ │ ├── productRoutes.js # Rutas para productos
-│ │ └── viewRoutes.js # Rutas para vistas (handlebars)
-│ │
-│ ├── utils/ # Scripts para ayudas varias
-│ │
-│ ├── views/
-│ │ ├── layouts/ # Plantilla donde se maneja la información inicial del proyecto
-│ │ │ └── main.handlebars # Plantilla base para vistas
-│ │ ├── cart.handlebars # Plantilla para manejo de carrito
-│ │ ├── index.handlebars # Plantilla para listado de productos
-│ │ ├── productDetail.handlebars # Plantilla de detalle de producto
-│ │ └── realtimeproducts.handlebars # Plantilla para gestión de productos en modo Administrador
-│ │
-│ └── app.js # Archivo principal para iniciar la aplicación
+│   ├── config/
+│   │   └── passport.config.js  # Configuración de Passport para autenticación
+│   │
+│   ├── middleware/
+│   │   └── auth.js  # Middleware de autenticación
+│   │
+│   ├── models/
+│   │   ├── cartModel.js  # Modelo de datos para carritos
+│   │   ├── productModel.js  # Modelo de datos para productos
+│   │   └── user.model.js  # Modelo de datos para usuarios
+│   │
+│   ├── public/
+│   │   ├── images/  # Imágenes utilizadas en la aplicación
+│   │   ├── js/  # Scripts utilizados en el FrontEnd
+│   │   │   ├── cart.js  # Script para manejo del carrito
+│   │   │   ├── index.js  # Script para listado de productos
+│   │   │   ├── productDetail.js  # Script para detalles de producto
+│   │   │   ├── realtimeproducts.js  # Script para gestión de productos en modo Administrador
+│   │   │   └── utils.js  # Utilidades varias para el FrontEnd
+│   │   └── styles/
+│   │       └── styles.css  # Estilo principal de la aplicación
+│   │
+│   ├── router/
+│   │   ├── cart.router.js  # Rutas para carritos
+│   │   ├── products.router.js  # Rutas para productos
+│   │   ├── session.router.js  # Rutas para sesiones y autenticación
+│   │   └── views.router.js  # Rutas para vistas (handlebars)
+│   │
+│   ├── utils/
+│   │   ├── cartUtils.js  # Utilidades relacionadas con carritos
+│   │   ├── dirnameUtils.js  # Utilidad para manejo de __dirname
+│   │   ├── errorHandler.js  # Manejo de errores
+│   │   ├── handlebarsHelpers.js  # Helpers para Handlebars
+│   │   ├── multerUtils.js  # Configuración de Multer para subir archivos
+│   │   ├── passportUtils.js  # Utilidades para Passport
+│   │   ├── passwordUtils.js  # Utilidades para manejo de contraseñas
+│   │   ├── socketUtils.js  # Utilidades para Socket.io
+│   │   ├── utils.js  # Otras utilidades
+│   │   └── webTokenUtil.js  # Utilidad para manejo de Web Tokens
+│   │
+│   ├── views/
+│   │   ├── admin/
+│   │   │   └── realtimeproducts.hbs  # Plantilla para gestión de productos en modo Administrador
+│   │   ├── error/
+│   │   │   └── error.hbs  # Plantilla para mostrar errores
+│   │   ├── layouts/
+│   │   │   └── main.handlebars  # Plantilla base para vistas
+│   │   ├── products/
+│   │   │   └── productDetail.hbs  # Plantilla de detalle de producto
+│   │   ├── users/
+│   │   │   ├── cart.hbs  # Plantilla para manejo de carrito
+│   │   │   ├── login.hbs  # Plantilla para el inicio de sesión
+│   │   │   ├── profile.hbs  # Plantilla para el perfil del usuario
+│   │   │   └── register.hbs  # Plantilla para el registro de usuario
+│   │   └── index.hbs  # Plantilla para listado de productos
+│   │
+│   ├── app.js  # Archivo principal para iniciar la aplicación
 │
-├── .gitignore # Archivos y carpetas a ignorar por Git
-├── package.json # Archivo de configuración de dependencias
-└── README.md # Archivo de documentación del proyecto
+├── .gitignore  # Archivos y carpetas a ignorar por Git
+├── package.json  # Archivo de configuración de dependencias
+└── README.md  # Archivo de documentación del proyecto                     
+
 ```
 
 ### Descripción de Carpetas y Archivos
 
-- **`src/models/`**: Modelos de datos que definen la estructura de los productos y carritos.
-- **`src/public/`**: Archivos estáticos como imágenes, scripts y hojas de estilo.
-- **`src/router/`**: Define las rutas de la API y las vistas para el frontend.
-- **`src/utils/`**: Helpers y scripts utilitarios.
-- **`src/views/`**: Plantillas Handlebars para la visualización de productos y la gestión en tiempo real.
+### Descripción de Carpetas y Archivos
+
+- **`src/config/`**: Archivos de configuración de la aplicación.
+- **`src/middleware/`**: Middleware personalizado para la aplicación.
+- **`src/models/`**: Modelos de datos que definen la estructura de la base de datos.
+- **`src/public/`**: Archivos estáticos que se sirven al cliente.
+- **`src/router/`**: Definición de rutas para la API y vistas del frontend.
+- **`src/utils/`**: Scripts utilitarios y helpers.
+- **`src/views/`**: Plantillas Handlebars para renderizar el frontend.
 - **`src/app.js`**: Archivo principal que arranca el servidor y configura la aplicación.
-- **`.gitignore`**: Lista de archivos y carpetas que Git debe ignorar.
-- **`package.json`**: Configuración del proyecto y dependencias.
-- **`README.md`**: Documentación del proyecto.
+- **`.gitignore`**: Especifica los archivos y carpetas que deben ser ignorados por Git.
+- **`package.json`**: Contiene la configuración del proyecto y las dependencias.
+- **`README.md`**: Proporciona documentación sobre el proyecto.
+
 
 ## Recursos Utilizados
 
@@ -217,3 +282,17 @@ Este proyecto utiliza las siguientes tecnologías y bibliotecas:
   - Versión: `^1.12.0`
 - **[Boxicons](https://boxicons.com/)**: Biblioteca de iconos para mejorar la interfaz de usuario.
   - Versión: `^2.1.2`
+- **[Passport](http://www.passportjs.org/)**: Middleware de autenticación para Node.js.
+  - Versión: `^0.7.0`
+- **[Passport JWT](https://www.npmjs.com/package/passport-jwt)**: Estrategia de Passport para autenticación con JSON Web Tokens (JWT).
+  - Versión: `^4.0.1`
+- **[bcrypt](https://www.npmjs.com/package/bcrypt)**: Biblioteca para el hash y la verificación de contraseñas.
+  - Versión: `^5.1.1`
+- **[Connect-Mongo](https://www.npmjs.com/package/connect-mongo)**: Adaptador para almacenar sesiones en MongoDB.
+  - Versión: `^5.1.0`
+- **[Cookie-Parser](https://www.npmjs.com/package/cookie-parser)**: Middleware para analizar cookies en las solicitudes HTTP.
+  - Versión: `^1.4.6`
+- **[dotenv](https://www.npmjs.com/package/dotenv)**: Carga variables de entorno desde un archivo `.env`.
+  - Versión: `^16.4.5`
+- **[jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)**: Biblioteca para trabajar con JSON Web Tokens (JWT).
+  - Versión: `^9.0.2`

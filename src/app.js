@@ -47,6 +47,7 @@ app.use(
   })
 );
 
+//Passport para autenticación y autorización
 initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());

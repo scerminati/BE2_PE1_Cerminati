@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Escuchar evento de actualización de producto
   socket.on("Product Update", (updatedProduct) => {
-    console.log("Producto Actualizado:", updatedProduct);
+    //console.log("Producto Actualizado:", updatedProduct);
 
     const existingProduct = document.getElementById(updatedProduct.id);
 
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Escuchar evento de eliminación de producto
   socket.on("Product Deleted", (deletedProduct) => {
-    console.log("Producto Eliminado:", deletedProduct);
+    //console.log("Producto Eliminado:", deletedProduct);
 
     const existingProduct = document.getElementById(deletedProduct.id);
     if (existingProduct) {

@@ -10,93 +10,9 @@ socket.on("disconnect", () => {
   console.log("Cliente desconectado del servidor");
 });
 
-// // Función para crear un nuevo carrito
-// const createNewCart = async () => {
-//   try {
-//     const response = await fetch("/api/carts", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     });
-
-//     if (response.ok) {
-//       const data = await response.json();
-//       localStorage.setItem("cartId", data.newCart._id);
-//       socket.emit("cartId", data.newCart._id);
-//       console.log(`Nuevo carrito creado con ID: ${data.newCart._id}`);
-//       return data.newCart._id;
-//     } else {
-//       console.error("Error al crear el carrito:", response.statusText);
-//       return null;
-//     }
-//   } catch (error) {
-//     console.error("Error en la solicitud:", error);
-//     return null;
-//   }
-// };
-
-// // Verificar si el ID del carrito ya está en localStorage
-// const getCartId = async () => {
-//   let cartId = localStorage.getItem("cartId");
-
-//   if (!cartId) {
-//     cartId = await createNewCart();
-//   }
-//   socket.emit("cartId", cartId);
-
-//   return cartId;
-// };
-
-//Chequeo de carrito lleno/vacío e ID.
-const getCartId = async () => {
-  try {
-    const response = await fetch("api/sessions/current", {
-      method: "GET",
-      credentials: "include", // Asegúrate de incluir las cookies en la solicitud
-    });
-
-    if (!response.ok) {
-      throw new Error("Error al obtener los datos del usuario");
-    }
-
-    const data = await response.json();
-    console.log("Datos del usuario:", data);
-
-    return data.cart._id;
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
-
-//Función de cantidad total en el carrito para obtener el cart count.
-const getQT = async () => {
-  const cartId = await getCartId();
-  if (cartId) {
-    try {
-      const response = await fetch(`/api/carts/${cartId}/QT`);
-      if (response.ok) {
-        const data = await response.json();
-        cartCount.innerText = data.totalProductos;
-      } else {
-        console.error(`Error al cargar QT: ${response.statusText}`);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  } else {
-    cartCount.innerText = 0;
-  }
-};
-
-const cartCount = document.getElementById("cartCount");
-if (cartCount) {
-  getQT();
-}
-
 // Escuchar actualizaciones de productos desde el servidor
 socket.on("Cart Update", (updatedCart) => {
-  console.log("Carrito actualizado:", updatedCart);
+  //console.log("Carrito actualizado:", updatedCart);
   const cartCount = document.getElementById("cartCount");
   if (cartCount) {
     getQT();
@@ -109,7 +25,6 @@ const updateCartLink = async () => {
   if (cartId) {
     const cartLink = document.getElementById("cartLink");
     cartLink.href = `/carts/${cartId}`;
-    console.log(`Carrito ya existente con ID: ${cartId}`);
   } else {
     cartLink.href = `/login`;
   }
@@ -138,7 +53,7 @@ const addToCart = async (productId) => {
         throw new Error("No se pudo agregar el producto al carrito");
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error:", error.message);
       tostada("Error al agregar el producto al carrito");
     }
   } else {
@@ -148,7 +63,7 @@ const addToCart = async (productId) => {
 
 // Escuchar el evento Product Update y actualizar la vista
 socket.on("Product Update", (updatedProduct) => {
-  console.log("Producto Actualizado:", updatedProduct);
+  //console.log("Producto Actualizado:", updatedProduct);
 
   const stockElement = document.querySelector(
     `p[data-product-ids="${updatedProduct._id}"]`
