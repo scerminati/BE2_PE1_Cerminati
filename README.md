@@ -1,3 +1,6 @@
+#ESTE NO ES EL REPOSITORIO DEL PROYECTO FINAL!!!
+POR FAVOR REDIRIJIRSE ACÁ https://github.com/scerminati/BE2_PF_cerminati
+
 # Backend II - Pre Entrega 1 - Sofía Cerminati
 
 Este proyecto es la programación del Backend del E-Commerce So-Games, para juegos de mesa, junto con la implementación de su FrontEnd. El mismo se realiza como finalización del curso Programación Backend II: Diseño y Arquitectura Backend de CODERHOUSE, comisión 70070, con el profesor Omar Jesús Maniás. 
